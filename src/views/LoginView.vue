@@ -34,7 +34,7 @@ async function handleLogin() {
       errorMessage.value = 'Nieprawidłowy login lub hasło';
     }
   } catch (e) {
-    errorMessage.value = 'Nieprawidłowy login lub hasło';
+    console.error(e);
   }
 }
 
