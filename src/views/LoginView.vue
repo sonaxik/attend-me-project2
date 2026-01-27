@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import {useAuthStore} from '@/stores/auth'
-import {useRouter} from 'vue-router';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router';
 
 const loginName = ref('')
 const pass = ref('')
@@ -17,23 +17,21 @@ async function handleLogin() {
     const success = await authStore.login(loginName.value, pass.value);
 
     if (success) {
-        const role = authStore.isTeacher;
-        if(role == true)
-    {
+      const role = authStore.isTeacher;
+      if (role == true) {
         await router.push('/TeacherView');
-    }
-    else if (role == false)
-    {
+      }
+      else if (role == false) {
         await router.push('/StudentView');
-    }
-    else
-    {
+      }
+      else {
         await router.push('/');
-    }
+      }
     } else {
       errorMessage.value = 'Nieprawidłowy login lub hasło';
     }
   } catch (e) {
+    errorMessage.value = 'Nieprawidłowy login lub hasło';
     console.error(e);
   }
 }
@@ -41,23 +39,41 @@ async function handleLogin() {
 </script>
 
 <template>
-    <div class="container">
-        <h2>Logowanie</h2>
-        <form @submit.prevent="handleLogin">
+  <form @submit.prevent="handleLogin">
+    <section class="vh-100">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card bg-dark text-white" style="border-radius: 1rem;">
+              <div class="card-body p-5 text-center">
 
-            <div class="form-group">
-                <label>Login: </label>
-                <input v-model="loginName" type="text" required placeholder="Podaj login">
-            </div>
+                <div class="mb-md-4 mt-md-4">
+                  <h1 class="bi bi-cone-striped pb-3"></h1>
 
-            <div class="form-group">
-                <label>Hasło: </label>
-                <input v-model="pass" type="text" required placeholder="Podaj hasło">
+                  <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                  <p class="text-white-50 mb-5">Please enter your login and password!</p>
+
+                  <div data-mdb-input-init class="form-outline form-white mb-4">
+                    <input v-model="loginName" type="text" id="loginX" class="form-control form-control-lg" />
+                    <label class="form-label" for="loginX">Login</label>
+                  </div>
+
+                  <div data-mdb-input-init class="form-outline form-white mb-4">
+                    <input v-model="pass" type="password" id="passwordX" class="form-control form-control-lg" />
+                    <label class="form-label" for="passwordX">Password</label>
+                  </div>
+
+                  <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+
+                  <div v-if="errorMessage">
+                    <p class="error-message">{{ errorMessage }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div v-if="errorMessage" class="error-message">
-                {{errorMessage}}
-            </div>
-            <button type="submit">Zaloguj się</button>
-        </form>
-    </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </form>
 </template>
