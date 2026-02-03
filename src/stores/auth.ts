@@ -10,6 +10,10 @@ export const useAuthStore = defineStore('auth', ()=>
     const isAuthenticated = computed(()=>!!token.value);
     const isTeacher = computed(() => !!user.value?.isTeacher);
 
+    if(token.value) //gemini 3 pro: błąd 401 podczas uruchamiania widoku pulpitu wykładowcy
+    {
+        Backend.userTokenResult = {token: token.value};
+    }
 
     async function login(loginName: string, pass: string)
     {
@@ -20,6 +24,7 @@ export const useAuthStore = defineStore('auth', ()=>
             {
                 token.value = result.token;
                 localStorage.setItem('auth_token', result.token);
+                Backend.userTokenResult = result; //gemini 3 pro: błąd 401 podczas uruchamiania widoku pulpitu wykładowcy
                 await fetchCurrentUser();
                 return true;
             }
@@ -27,7 +32,7 @@ export const useAuthStore = defineStore('auth', ()=>
         catch (error)
         {
             console.error("Błąd logowania", error);
-            throw error;
+            return false;
         }
         return false;
     }
@@ -36,6 +41,7 @@ export const useAuthStore = defineStore('auth', ()=>
         token.value = null;
         user.value = null;
         localStorage.removeItem('auth_token');
+        Backend.userTokenResult = undefined; //gemini 3 pro: błąd 401 podczas uruchamiania widoku pulpitu wykładowcy
     }
     async function fetchCurrentUser()
     {
