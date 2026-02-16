@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import TeacherView from '@/views/TeacherView.vue'
 import StudentView from '@/views/StudentView.vue'
-import {useAuthStore} from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory('/'),

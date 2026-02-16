@@ -30,7 +30,7 @@ onMounted(async ()=>{
         sessions.value = response.items || []
     } catch (error)
     {
-        console.error("Nie można pobrać zajęć")
+        console.error("Nie można pobrać zajęć" + error)
     } finally
     {
         isLoading.value = false
@@ -53,7 +53,7 @@ onMounted(async ()=>{
         Moje Zajęcia
       </div>
       <div class="card-body">
-        
+
         <div v-if="isLoading" class="text-center p-3">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
