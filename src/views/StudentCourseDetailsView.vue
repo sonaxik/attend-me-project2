@@ -29,13 +29,13 @@ const stats = computed(() => {
 
   const now = new Date();
   const pastSessions = sessions.value.filter(s => s.dateEnd && new Date(s.dateEnd) < now);
-  
+
   const presentCount = attendanceLogs.value.length;
-  
+
   const progress = Math.round((pastSessions.length / totalSessions) * 100);
 
-  const attendancePct = pastSessions.length > 0 
-    ? Math.round((presentCount / pastSessions.length) * 100) 
+  const attendancePct = pastSessions.length > 0
+    ? Math.round((presentCount / pastSessions.length) * 100)
     : 100;
 
   return {
@@ -59,8 +59,8 @@ function isActive(start?: Date, end?: Date): boolean {
 
 function formatDate(date?: Date) {
   if (!date) return '-';
-  return new Date(date).toLocaleString('pl-PL', { 
-    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+  return new Date(date).toLocaleString('pl-PL', {
+    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
   });
 }
 
@@ -74,7 +74,7 @@ function handleRegisterPresence() {
 
 async function handleResetDevice() {
     if(!confirm("Czy na pewno chcesz odłączyć to urządzenie?")) return;
-    
+
     try {
         await Backend.deviceAuthReset();
         localStorage.removeItem('device_token');
@@ -103,7 +103,7 @@ async function fetchData() {
 }
 
 function goBack() {
-    router.push('/student');
+    router.push('/StudentView');
 }
 
 onMounted(() => {
@@ -128,7 +128,7 @@ onMounted(() => {
         <div class="card shadow mb-4">
             <div class="card-body">
                 <h2 class="card-title text-primary fw-bold">{{ courseInfo.name }}</h2>
-                
+
                 <h5 class="text-muted">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
                 <p class="mb-0">{{ courseInfo.location || 'Brak danych o sali' }}</p>
             </div>
@@ -149,7 +149,7 @@ onMounted(() => {
                     <div class="card-body text-center">
                         <h5 class="card-title text-info">Zaawansowanie kursu</h5>
                         <div class="progress mt-3" style="height: 25px;">
-                            <div class="progress-bar bg-info" role="progressbar" 
+                            <div class="progress-bar bg-info" role="progressbar"
                                  :style="{ width: stats.progress + '%' }">
                                  {{ stats.progress }}%
                             </div>
@@ -165,7 +165,7 @@ onMounted(() => {
                 <span v-if="isDeviceRegistered" class="text-success">✅ Zarejestrowane</span>
                 <span v-else class="text-danger">Nieznane</span>
             </div>
-            
+
             <div>
                 <button v-if="isDeviceRegistered" @click="handleResetDevice" class="btn btn-sm btn-outline-danger me-2">
                     Odłącz
@@ -178,7 +178,7 @@ onMounted(() => {
 
         <h4 class="mb-3">Harmonogram i Obecności</h4>
         <div class="list-group">
-            <div v-for="session in sessions" :key="session.courseSessionId" 
+            <div v-for="session in sessions" :key="session.courseSessionId"
                  class="list-group-item d-flex justify-content-between align-items-center"
                  :class="{ 'list-group-item-warning': isActive(session.dateStart, session.dateEnd) }"
             >
@@ -197,7 +197,7 @@ onMounted(() => {
                             📱 Rejestruj Obecność
                          </button>
                     </div>
-                    
+
                     <div v-else-if="session.dateEnd && new Date(session.dateEnd) < new Date()">
                         <span v-if="isPresent(session.courseSessionId)" class="badge bg-success rounded-pill p-2">
                             OBECNY
