@@ -15,6 +15,13 @@ const SERVER_API_URL = 'https://attendme-backend.runasp.net';
 
 export const backend = new AttendMeBackendClient(SERVER_API_URL);
 
+const savedDeviceToken = localStorage.getItem('device_token');
+if(savedDeviceToken)
+{
+    console.log("Przywrócono token urządzenia z pamięci");
+    (backend as any).token = savedDeviceToken;
+}
+
 app.use(createPinia())
 app.use(router)
 
