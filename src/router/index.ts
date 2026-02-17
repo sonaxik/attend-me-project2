@@ -3,6 +3,8 @@ import LoginView from '@/views/LoginView.vue'
 import TeacherView from '@/views/TeacherView.vue'
 import StudentView from '@/views/StudentView.vue'
 import StudentCourseDetailsView from '@/views/StudentCourseDetailsView.vue'
+import TeacherSessionView from '@/views/TeacherSessionView.vue'
+import StudentDeviceRegisterView from '@/views/StudentDeviceRegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -32,6 +34,17 @@ const router = createRouter({
       component: StudentCourseDetailsView,
       meta: {requiresAuth: true}
       },
+      {
+      path: '/teacher/session/:id',
+      name: 'teacher-session-details',
+      component: TeacherSessionView,
+      meta: { requiresAuth: true } // ?? meta, to na pewno git?
+    },
+    {
+      path: '/student/device-register',
+      name: 'student-device-register',
+      component: StudentDeviceRegisterView
+    },
 
   ],
 })

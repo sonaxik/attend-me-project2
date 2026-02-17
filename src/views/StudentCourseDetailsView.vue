@@ -11,6 +11,7 @@ const groupId = parseInt(route.params.id as string);
 const sessions = ref<CourseSessionListItem[]>([]);
 const attendanceLogs = ref<AttendanceLog[]>([]);
 const isLoading = ref(true);
+
 const isDeviceRegistered = ref(false);
 
 const courseInfo = computed(() => {
@@ -69,21 +70,7 @@ function handleRegisterPresence() {
     alert("Twoje urządzenie nie jest zarejestrowane! Poproś prowadzącego o link rejestracyjny.");
     return;
   }
-  alert("Tu otworzy się Twój kod QR (widok w trakcie budowy).");
-}
-
-async function handleResetDevice() {
-    if(!confirm("Czy na pewno chcesz odłączyć to urządzenie?")) return;
-
-    try {
-        await Backend.deviceAuthReset();
-        localStorage.removeItem('device_token');
-        isDeviceRegistered.value = false;
-        alert("Urządzenie odłączone.");
-    } catch (error) {
-        console.error("Błąd resetowania:", error);
-        alert("Wystąpił błąd podczas resetowania.");
-    }
+  alert("Otwieram skaner QR...");
 }
 
 async function fetchData() {
@@ -103,54 +90,65 @@ async function fetchData() {
 }
 
 function goBack() {
-    router.push('/StudentView');
+    router.back();
 }
 
 onMounted(() => {
-  isDeviceRegistered.value = !!localStorage.getItem('device_token');
+  isDeviceRegistered.value = !!localStorage.getItem('attend-me:deviceAuthData');
   fetchData();
 });
 </script>
 
 <template>
-  <div class="container mt-4 mb-5">
-    <button @click="goBack" class="btn btn-outline-secondary mb-3">← Wróć</button>
+  <div class="container mt-4 mb-5 text-white">
+    <div class="d-flex align-items-center mb-4">
+      <button
+        class="btn btn-back rounded-circle d-flex align-items-center justify-content-center me-3"
+        style="width: 45px; height: 45px;"
+        @click="goBack"
+        title="Wróć"
+      >
+        <i class="bi bi-arrow-left fs-4"></i>
+      </button>
 
-    <div v-if="isLoading" class="text-center">
-        <div class="spinner-border text-primary" role="status"></div>
+      <h1 class="mb-0 fs-3">Szczegóły kursu</h1>
     </div>
 
-    <div v-else-if="!courseInfo" class="alert alert-warning">
+    <div v-if="isLoading" class="text-center p-5">
+        <div class="spinner-border" style="color: #59C173;" role="status"></div>
+    </div>
+
+    <div v-else-if="!courseInfo" class="alert alert-secondary bg-dark text-white-50 border-secondary">
         Nie znaleziono danych kursu.
     </div>
 
     <div v-else>
-        <div class="card shadow mb-4">
+        <div class="card shadow mb-4 bg-dark text-white border-secondary">
             <div class="card-body">
-                <h2 class="card-title text-primary fw-bold">{{ courseInfo.name }}</h2>
-
-                <h5 class="text-muted">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
-                <p class="mb-0">{{ courseInfo.location || 'Brak danych o sali' }}</p>
+                <h2 class="card-title fw-bold" style="color: #59C173;">{{ courseInfo.name }}</h2>
+                <h5 class="text-white-50">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
+                <p class="mb-0 text-white-50">📍 {{ courseInfo.location || 'Brak danych o sali' }}</p>
             </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-md-6 mb-2">
-                <div class="card bg-light border-success h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-success">Frekwencja</h5>
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-body text-center text-white">
+                        <h5 class="card-title" style="color: #59C173;">Frekwencja</h5>
                         <h1 class="display-4 fw-bold">{{ stats.attendance }}%</h1>
-                        <p class="card-text">Obecny na {{ stats.presentCount }} z {{ stats.pastCount }} zajęć</p>
+                        <p class="card-text text-white-50">Obecny na {{ stats.presentCount }} z {{ stats.pastCount }} zajęć</p>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-6 mb-2">
-                <div class="card bg-light border-info h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-info">Zaawansowanie kursu</h5>
-                        <div class="progress mt-3" style="height: 25px;">
-                            <div class="progress-bar bg-info" role="progressbar"
-                                 :style="{ width: stats.progress + '%' }">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-body text-center text-white">
+                        <h5 class="card-title" style="color: #59C173;">Zaawansowanie kursu</h5>
+                        <div class="progress mt-4 bg-secondary" style="height: 25px;">
+                            <div class="progress-bar fw-bold" role="progressbar"
+                                 :style="{ width: stats.progress + '%', backgroundColor: '#59C173' }">
                                  {{ stats.progress }}%
                             </div>
                         </div>
@@ -159,56 +157,52 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded shadow-sm border">
-            <div>
-                <strong>Status urządzenia: </strong>
-                <span v-if="isDeviceRegistered" class="text-success">✅ Zarejestrowane</span>
-                <span v-else class="text-danger">Nieznane</span>
-            </div>
+        <div class="card shadow bg-dark text-white border-secondary">
 
-            <div>
-                <button v-if="isDeviceRegistered" @click="handleResetDevice" class="btn btn-sm btn-outline-danger me-2">
-                    Odłącz
-                </button>
-                <button @click="fetchData" class="btn btn-sm btn-outline-primary">
+            <div class="card-header d-flex justify-content-between align-items-center border-secondary bg-dark">
+                <span class="fs-5 fw-bold" style="color: #59C173;">Harmonogram i Obecności</span>
+
+                <button @click="fetchData" class="btn btn-sm btn-light fw-bold" style="color: #59C173;">
+                    <span v-if="isLoading" class="spinner-border spinner-border-sm me-1"></span>
                     Odśwież
                 </button>
             </div>
-        </div>
 
-        <h4 class="mb-3">Harmonogram i Obecności</h4>
-        <div class="list-group">
-            <div v-for="session in sessions" :key="session.courseSessionId"
-                 class="list-group-item d-flex justify-content-between align-items-center"
-                 :class="{ 'list-group-item-warning': isActive(session.dateStart, session.dateEnd) }"
-            >
-                <div>
-                    <div class="fw-bold">
-                        {{ formatDate(session.dateStart) }}
-                        <span v-if="isActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark ms-2">
-                            TRWAJĄ TERAZ
-                        </span>
-                    </div>
-                </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <div v-for="session in sessions" :key="session.courseSessionId"
+                         class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary p-3"
+                         :class="{ 'border-active': isActive(session.dateStart, session.dateEnd) }"
+                    >
+                        <div>
+                            <div class="fw-bold fs-5">
+                                {{ formatDate(session.dateStart) }}
+                                <span v-if="isActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark ms-2">
+                                    TRWAJĄ TERAZ
+                                </span>
+                            </div>
+                        </div>
 
-                <div class="text-end">
-                    <div v-if="isActive(session.dateStart, session.dateEnd)">
-                         <button @click="handleRegisterPresence" class="btn btn-success fw-bold pulse-btn">
-                            📱 Rejestruj Obecność
-                         </button>
-                    </div>
+                        <div class="text-end">
+                            <div v-if="isActive(session.dateStart, session.dateEnd)">
+                                 <button @click="handleRegisterPresence" class="btn fw-bold text-white pulse-btn" style="background-color: #59C173;">
+                                    📱 Rejestruj Obecność
+                                 </button>
+                            </div>
 
-                    <div v-else-if="session.dateEnd && new Date(session.dateEnd) < new Date()">
-                        <span v-if="isPresent(session.courseSessionId)" class="badge bg-success rounded-pill p-2">
-                            OBECNY
-                        </span>
-                        <span v-else class="badge bg-danger rounded-pill p-2">
-                            NIEOBECNY
-                        </span>
-                    </div>
+                            <div v-else-if="session.dateEnd && new Date(session.dateEnd) < new Date()">
+                                <span v-if="isPresent(session.courseSessionId)" class="badge bg-success rounded-pill p-2 px-3">
+                                    OBECNY
+                                </span>
+                                <span v-else class="badge bg-danger rounded-pill p-2 px-3">
+                                    NIEOBECNY
+                                </span>
+                            </div>
 
-                    <div v-else>
-                        <span class="badge bg-secondary rounded-pill">Nadchodzące</span>
+                            <div v-else>
+                                <span class="badge bg-secondary rounded-pill p-2 px-3">Nadchodzące</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -216,3 +210,38 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Styl dla przycisku Wstecz */
+.btn-back {
+    color: #6c757d;
+    border: 1px solid #6c757d;
+    background-color: transparent; /* Zawsze przezroczyste tło */
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    color: #fff;
+    border-color: #fff;
+    background-color: transparent !important; /* Blokada wyszarzania tła */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(89, 193, 115, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(89, 193, 115, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(89, 193, 115, 0); }
+}
+
+.pulse-btn {
+    animation: pulse 2s infinite;
+}
+
+.border-active {
+    background-color: #262a2e !important;
+    border-left: 4px solid #ffc107 !important;
+}
+
+.list-group-item:hover {
+    background-color: #2c3035 !important;
+}
+</style>

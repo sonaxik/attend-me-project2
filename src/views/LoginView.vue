@@ -35,7 +35,6 @@ async function handleLogin() {
     console.error(e);
   }
 }
-
 </script>
 
 <template>
@@ -66,7 +65,7 @@ async function handleLogin() {
                   <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
 
                   <div v-if="errorMessage">
-                    <p class="error-message">{{ errorMessage }}</p>
+                    <p class="text-danger mt-3">{{ errorMessage }}</p>
                   </div>
                 </div>
               </div>
@@ -77,3 +76,25 @@ async function handleLogin() {
     </section>
   </form>
 </template>
+
+<style scoped>
+/* Dodane style, aby inputy były czarne */
+.form-control {
+  background-color: #212529; /* Ciemne tło */
+  color: #fff;               /* Biały tekst */
+  border: 1px solid #4f4f4f; /* Szara ramka */
+}
+
+/* Styl po kliknięciu w input (focus) - żeby nie robił się biały */
+.form-control:focus {
+  background-color: #212529;
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+/* Kolor etykiet wewnątrz inputów (placeholderów) */
+::placeholder {
+  color: #adb5bd;
+}
+</style>
