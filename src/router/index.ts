@@ -6,6 +6,7 @@ import StudentCourseDetailsView from '@/views/StudentCourseDetailsView.vue'
 import TeacherSessionView from '@/views/TeacherSessionView.vue'
 import StudentDeviceRegisterView from '@/views/StudentDeviceRegisterView.vue'
 import StudentQRView from '@/views/StudentQRView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -55,6 +56,20 @@ const router = createRouter({
 
 
   ],
+})
+
+router.beforeEach((to, from, next)=>
+{
+  const authStore = useAuthStore()
+  const isAuthenticated = !!authStore.user
+  if(!isAuthenticated && to.name !== 'login')
+  {
+    next({name: 'login'})
+  }
+  else 
+  {
+    next()
+  }
 })
 
 export default router
