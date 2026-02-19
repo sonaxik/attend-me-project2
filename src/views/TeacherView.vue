@@ -8,9 +8,9 @@ import type { CourseSessionListItem } from '@/backend/AttendMeBackendClientBase'
 const sessions = ref<CourseSessionListItem[]>([])
 const isLoading = ref(true)
 
-type FilterType = 'today' | 'week' | 'month' | 'future' | 'past' | 'all';
+type FilterType = 'today' | 'tomorrow' | 'nextWeek' | 'past' | 'all_date' | 'all_text';
 
-const filterStatus = ref<FilterType>('all')
+const filterStatus = ref<FilterType>('all_date')
 const searchTerm = ref("")
 
 const authStore = useAuthStore()
@@ -57,14 +57,12 @@ const filteredSessions = computed(() => {
   const endOfToday = new Date(startOfToday)
   endOfToday.setDate(startOfToday.getDate() + 1)
 
+  const startOfTommorow = new Date(startOfToday.getTime()+24 *60*60*1000)
+  const endOfTommorow = new Date(startOfTommorow.getTime()+24 *60*60*1000-1)
   const dayOfWeek = now.getDay() || 7
-  const startOfWeek = new Date(startOfToday)
-  startOfWeek.setDate(startOfToday.getDate() - dayOfWeek + 1)
-  const endOfWeek = new Date(startOfWeek)
-  endOfWeek.setDate(startOfWeek.getDate() + 7)
-
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+  const daysUntilNextMonday = 8 - dayOfWeek
+  const startOfNextWeek = new Date(startOfToday.getTime()+daysUntilNextMonday*24*60*60*1000)
+  const endOfNextWeek = new Date(startOfNextWeek.getTime()+7*24*60*60*1000-1)
 
   switch (filterStatus.value) {
     case 'today':
@@ -74,28 +72,25 @@ const filteredSessions = computed(() => {
         return d >= startOfToday && d < endOfToday
       })
       break
-    case 'week':
+    case 'tomorrow':
       result = result.filter(s => {
         if (!s.dateStart) return false
         const d = new Date(s.dateStart)
-        return d >= startOfWeek && d < endOfWeek
+        return d >= startOfTommorow && d < endOfTommorow
       })
       break
-    case 'month':
+    case 'nextWeek':
       result = result.filter(s => {
         if (!s.dateStart) return false
         const d = new Date(s.dateStart)
-        return d >= startOfMonth && d <= endOfMonth
+        return d >= startOfNextWeek && d <= endOfNextWeek
       })
-      break
-    case 'future':
-      result = result.filter(s => s.dateStart ? new Date(s.dateStart) > now : false)
       break
     case 'past':
       result = result.filter(s => s.dateEnd ? new Date(s.dateEnd) <= now : false)
       break
-    case 'all':
-    default:
+    case 'all_date':
+    case 'all_text':
       break
   }
 
@@ -108,15 +103,18 @@ const filteredSessions = computed(() => {
     )
   }
 
-  result.sort((a, b) => {
-      const dateA = a.dateStart ? new Date(a.dateStart).getTime() : 0
-      const dateB = b.dateStart ? new Date(b.dateStart).getTime() : 0
-
-      if (filterStatus.value === 'past') {
-          return dateB - dateA
-      }
-      return dateA - dateB
-  })
+  if(filterStatus.value === 'all_text')
+  {
+    result.sort((a, b) => {
+      const dateA = a.dateStart ? new Date(a.dateStart).getTime():0
+      const dateB = b.dateStart ? new Date(b.dateStart).getTime():0
+      if(filterStatus.value === 'past')
+    {
+      return dateB - dateA
+    }
+    return dateA - dateB
+    })
+  }
 
   return result
 })
@@ -159,12 +157,12 @@ onMounted(() => {
             <div class="input-group">
               <span class="input-group-text bg-dark text-white border-secondary">📅 Pokaż:</span>
               <select v-model="filterStatus" class="form-select form-select-dark bg-dark text-white border-secondary fw-bold">
-                <option value="all">Wszystkie</option>
-                <option value="today">Dzisiaj</option>
-                <option value="week">Bieżący tydzień</option>
-                <option value="month">Bieżący miesiąc</option>
-                <option value="future">Przyszłe</option>
+                <option value="today">Aktualne (Dziś)</option>
+                <option value="tomorrow">Jutro</option>
+                <option value="nextWeek">Następny tydzień</option>
                 <option value="past">Minione</option>
+                <option value="all_date">Wszystkie: wg dat</option>
+                <option value="all_text">Wszystkie: wg tekstu</option>
               </select>
             </div>
           </div>

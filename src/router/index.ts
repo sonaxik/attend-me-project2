@@ -62,11 +62,17 @@ router.beforeEach((to, from, next)=>
 {
   const authStore = useAuthStore()
   const isAuthenticated = !!authStore.user
-  if(!isAuthenticated && to.name !== 'login')
+  const publicPages = ['login', 'student-device-register']
+  const authRequired = !publicPages.includes(to.name as string)
+  if(!isAuthenticated && authRequired)
   {
     next({name: 'login'})
   }
-  else 
+  else if (!authRequired && isAuthenticated && to.name === 'login')
+  {
+    next('/')
+  }
+  else
   {
     next()
   }
