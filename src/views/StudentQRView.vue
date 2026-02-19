@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Backend } from '@/main';
-import QrcodeVue from 'qrcode.vue'; // Twoja biblioteka! Kogo?
+import QrcodeVue from 'qrcode.vue';
 
 const router = useRouter();
 const qrCodeValue = ref("");
@@ -47,10 +47,8 @@ function goBack() {
 
     <div class="w-100 d-flex align-items-center mb-4">
       <button
-        class="btn rounded-circle d-flex align-items-center justify-content-center me-3"
-        style="width: 45px; height: 45px; border: 1px solid #6c757d; color: #6c757d; transition: 0.3s;"
-        onmouseover="this.style.color='#fff'; this.style.borderColor='#59C173';"
-        onmouseout="this.style.color='#6c757d'; this.style.borderColor='#6c757d';"
+        class="btn subpage-back-btn rounded-circle d-flex align-items-center justify-content-center me-3"
+        style="width: 45px; height: 45px;"
         @click="goBack"
       >
         <i class="bi bi-arrow-left fs-4"></i>

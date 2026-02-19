@@ -86,22 +86,22 @@ function goToDashboard() {
         <form @submit.prevent="handleRegister">
           <div class="mb-4">
             <label class="form-label fw-bold">Imię</label>
-            <input v-model="formData.studentName" type="text" class="form-control form-control-lg bg-dark text-white border-secondary" required placeholder="Jan">
+            <input v-model="formData.studentName" type="text" class="form-control form-control-lg bg-dark text-white border-secondary dark-input dark-placeholder" required placeholder="Jan">
           </div>
 
           <div class="mb-4">
             <label class="form-label fw-bold">Nazwisko</label>
-            <input v-model="formData.studentSurname" type="text" class="form-control form-control-lg bg-dark text-white border-secondary" required placeholder="Kowalski">
+            <input v-model="formData.studentSurname" type="text" class="form-control form-control-lg bg-dark text-white border-secondary dark-input dark-placeholder" required placeholder="Kowalski">
           </div>
 
           <div class="mb-4">
             <label class="form-label fw-bold">Numer Indeksu</label>
-            <input v-model="formData.albumIdNumber" type="number" class="form-control form-control-lg bg-dark text-white border-secondary" required placeholder="12345">
+            <input v-model="formData.albumIdNumber" type="number" class="form-control form-control-lg bg-dark text-white border-secondary dark-input dark-placeholder" required placeholder="12345">
           </div>
 
           <div class="mb-4">
             <label class="form-label fw-bold">Nazwa Urządzenia</label>
-            <input v-model="formData.deviceName" type="text" class="form-control form-control-lg bg-dark text-white border-secondary" required placeholder="np. Telefon Jana">
+            <input v-model="formData.deviceName" type="text" class="form-control form-control-lg bg-dark text-white border-secondary dark-input dark-placeholder" required placeholder="np. Telefon Jana">
             </div>
 
           <div class="d-grid mt-5">
@@ -117,17 +117,3 @@ function goToDashboard() {
   </div>
 </template>
 
-<style scoped>
-/* Stylizacja inputów na wzór ekranu logowania */
-.form-control:focus {
-  border-color: #fff; /* Biała ramka przy focusie */
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
-  background-color: #212529; /* Ciemne tło */
-  color: white;
-}
-
-/* Większe odstępy i czcionki dla lepszej czytelności */
-.form-label {
-  letter-spacing: 0.5px;
-}
-</style>

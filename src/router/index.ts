@@ -13,67 +13,65 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      redirect: '/login',
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView,
     },
-        {
+    {
       path: '/TeacherView',
       name: 'teacher',
       component: TeacherView,
     },
-        {
+    {
       path: '/StudentView',
       name: 'student',
       component: StudentView,
     },
-        {
+    {
       path: '/student/course/:id',
       name: 'student-course-details',
       component: StudentCourseDetailsView,
-      meta: {requiresAuth: true}
-      },
-      {
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/teacher/session/:id',
       name: 'teacher-session-details',
       component: TeacherSessionView,
-      meta: { requiresAuth: true } // ?? meta, to na pewno git?
+      meta: { requiresAuth: true },
     },
     {
       path: '/student/device-register',
       name: 'student-device-register',
-      component: StudentDeviceRegisterView
+      component: StudentDeviceRegisterView,
     },
     {
       path: '/student/qr',
       name: 'student-qr',
       component: StudentQRView,
-      meta: {requiresAuth: true}
-    }
-
-
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
-router.beforeEach((to, from, next)=>
-{
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
-  const isAuthenticated = !!authStore.user
+
+  if (!authStore.user && authStore.token) {
+    await authStore.fetchCurrentUser()
+  }
+
+  const isAuthenticated = authStore.isAuthenticated
   const publicPages = ['login', 'student-device-register']
   const authRequired = !publicPages.includes(to.name as string)
-  if(!isAuthenticated && authRequired)
-  {
-    next({name: 'login'})
-  }
-  else if (!authRequired && isAuthenticated && to.name === 'login')
-  {
+
+  if (!isAuthenticated && authRequired) {
+    next({ name: 'login' })
+  } else if (!authRequired && isAuthenticated && to.name === 'login') {
     next('/')
-  }
-  else
-  {
+  } else {
     next()
   }
 })

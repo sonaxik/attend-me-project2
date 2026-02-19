@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Backend } from '@/main'
 import type { CourseSessionListItem, CourseSessionAttendanceRecord } from '@/backend/AttendMeBackendClientBase'
 import { Modal } from 'bootstrap'
+import { formatDateTime } from '@/helpers/dateUtils'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,13 +18,6 @@ const isLoadingDevices = ref(false)
 const studentDevices = ref<Record<number, string | null>>({})
 
 const sessionId = Number(route.params.id)
-
-function formatDate(date: Date | undefined) {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('pl-PL', {
-    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-  })
-}
 
 async function fetchData() {
   isLoading.value = true
@@ -129,7 +123,7 @@ onMounted(() => {
   <div class="container mt-4 text-white">
     <div class="d-flex align-items-center mb-4">
       <button
-        class="btn btn-back rounded-circle d-flex align-items-center justify-content-center me-3"
+        class="btn subpage-back-btn rounded-circle d-flex align-items-center justify-content-center me-3"
         style="width: 45px; height: 45px;"
         @click="goBack"
         title="Wróć"
@@ -162,7 +156,7 @@ onMounted(() => {
                         <span class="fs-4 me-3">📅</span>
                         <div>
                             <small class="text-white-50 d-block">Termin</small>
-                            <span class="fw-bold">{{ formatDate(session.dateStart) }}</span>
+                            <span class="fw-bold">{{ formatDateTime(session.dateStart) }}</span>
                         </div>
                     </div>
                 </div>
@@ -188,10 +182,16 @@ onMounted(() => {
 
       <div class="card shadow bg-dark text-white border-secondary">
         <div class="card-header border-secondary bg-dark d-flex justify-content-between align-items-center">
-            <span class="fs-5">Lista obecności</span>
-            <span class="badge rounded-pill" style="background-color: #5D26C1;">
-                {{ attendanceList.filter(s => s.wasUserPresent).length }} / {{ attendanceList.length }}
-            </span>
+            <div class="d-flex align-items-center gap-2">
+              <span class="fs-5">Lista obecności</span>
+              <span class="badge rounded-pill" style="background-color: #5D26C1;">
+                  {{ attendanceList.filter(s => s.wasUserPresent).length }} / {{ attendanceList.length }}
+              </span>
+            </div>
+            <button class="btn btn-sm btn-light subpage-refresh-btn" style="color: #5D26C1;" @click="fetchData" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+              Odśwież
+            </button>
         </div>
 
         <div class="card-body p-0">
@@ -294,20 +294,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Styl dla przycisku Wstecz */
-.btn-back {
-    color: #6c757d; /* Kolor ikony/obramowania domyślny */
-    border: 1px solid #6c757d;
-    background-color: transparent; /* Tło przezroczyste (ciemne jak strona) */
-    transition: all 0.3s;
-}
-
-.btn-back:hover {
-    color: #fff; /* Kolor ikony po najechaniu */
-    border-color: #fff;
-    background-color: transparent !important; /* Wymuszamy brak zmiany tła na szary */
-}
-
 .student-checkbox:checked {
     background-color: #59C173;
     border-color: #59C173;
