@@ -16,11 +16,17 @@ const isDeviceRegistered = ref(false);
 
 const courseInfo = computed(() => {
   if (sessions.value.length === 0) return null;
-  const first = sessions.value[0];
+  
+  // Szukamy najbliższych zajęć, żeby w sygnaturze wyświetlać aktualny termin
+  const now = new Date();
+  const nextSession = sessions.value.find(s => s.dateEnd && new Date(s.dateEnd) >= now) || sessions.value[0];
+
   return {
-    name: first.courseName,
-    group: first.courseGroupName,
-    location: first.locationName
+    name: nextSession.courseName,
+    group: nextSession.courseGroupName,
+    location: nextSession.locationName,
+    dateStart: nextSession.dateStart,
+    dateEnd: nextSession.dateEnd
   };
 });
 
@@ -58,10 +64,17 @@ function isActive(start?: Date, end?: Date): boolean {
   return new Date(start) <= now && new Date(end) >= now;
 }
 
-function formatDate(date?: Date) {
+function formatSessionDate(date?: Date) {
   if (!date) return '-';
-  return new Date(date).toLocaleString('pl-PL', {
-    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+  return new Date(date).toLocaleDateString('pl-PL', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
+  });
+}
+
+function formatSessionTime(date?: Date) {
+  if (!date) return '-';
+  return new Date(date).toLocaleTimeString('pl-PL', {
+    hour: '2-digit', minute: '2-digit'
   });
 }
 
@@ -70,7 +83,7 @@ function handleRegisterPresence() {
     alert("Twoje urządzenie nie jest zarejestrowane! Poproś prowadzącego o link rejestracyjny.");
     return;
   }
-  alert("Otwieram skaner QR...");
+  router.push({ name: 'student-qr' });
 }
 
 async function fetchData() {
@@ -111,7 +124,7 @@ onMounted(() => {
         <i class="bi bi-arrow-left fs-4"></i>
       </button>
 
-      <h1 class="mb-0 fs-3">Szczegóły kursu</h1>
+      <h1 class="mb-0 fs-3">Szczegóły przedmiotu</h1>
     </div>
 
     <div v-if="isLoading" class="text-center p-5">
@@ -126,8 +139,12 @@ onMounted(() => {
         <div class="card shadow mb-4 bg-dark text-white border-secondary">
             <div class="card-body">
                 <h2 class="card-title fw-bold" style="color: #59C173;">{{ courseInfo.name }}</h2>
-                <h5 class="text-white-50">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
-                <p class="mb-0 text-white-50">📍 {{ courseInfo.location || 'Brak danych o sali' }}</p>
+                <h5 class="text-white-50 mb-3">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
+                
+                <p class="mb-1 text-white-50">
+                    📅 Termin: {{ formatSessionDate(courseInfo.dateStart) }}, {{ formatSessionTime(courseInfo.dateStart) }} - {{ formatSessionTime(courseInfo.dateEnd) }}
+                </p>
+                <p class="mb-0 text-white-50">📍 Sala: {{ courseInfo.location || 'Brak danych o sali' }}</p>
             </div>
         </div>
 
@@ -174,13 +191,16 @@ onMounted(() => {
                          class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary p-3"
                          :class="{ 'border-active': isActive(session.dateStart, session.dateEnd) }"
                     >
-                        <div>
-                            <div class="fw-bold fs-5">
-                                {{ formatDate(session.dateStart) }}
-                                <span v-if="isActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark ms-2">
-                                    TRWAJĄ TERAZ
-                                </span>
-                            </div>
+                        <div class="d-flex flex-column text-start">
+                            <span class="fw-bold fs-5">{{ session.courseName }}</span>
+                            
+                            <span class="text-white-50 small mb-1">
+                                📅 {{ formatSessionDate(session.dateStart) }} | 🕒 {{ formatSessionTime(session.dateStart) }} - {{ formatSessionTime(session.dateEnd) }}
+                            </span>
+                            
+                            <span v-if="isActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark w-auto align-self-start mt-1">
+                                🔥 TRWAJĄ TERAZ
+                            </span>
                         </div>
 
                         <div class="text-end">
@@ -212,18 +232,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Styl dla przycisku Wstecz */
 .btn-back {
     color: #6c757d;
     border: 1px solid #6c757d;
-    background-color: transparent; /* Zawsze przezroczyste tło */
+    background-color: transparent; 
     transition: all 0.3s;
 }
 
 .btn-back:hover {
     color: #fff;
     border-color: #fff;
-    background-color: transparent !important; /* Blokada wyszarzania tła */
+    background-color: transparent !important; 
 }
 
 @keyframes pulse {
