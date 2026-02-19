@@ -53,12 +53,12 @@ async function handleLogin() {
                   <p class="text-white-50 mb-5">Please enter your login and password!</p>
 
                   <div data-mdb-input-init class="form-outline form-white mb-4">
-                    <input v-model="loginName" type="text" id="loginX" class="form-control form-control-lg" />
+                    <input v-model="loginName" type="text" id="loginX" class="form-control form-control-lg dark-input dark-placeholder" />
                     <label class="form-label" for="loginX">Login</label>
                   </div>
 
                   <div data-mdb-input-init class="form-outline form-white mb-4">
-                    <input v-model="pass" type="password" id="passwordX" class="form-control form-control-lg" />
+                    <input v-model="pass" type="password" id="passwordX" class="form-control form-control-lg dark-input dark-placeholder" />
                     <label class="form-label" for="passwordX">Password</label>
                   </div>
 
@@ -77,24 +77,3 @@ async function handleLogin() {
   </form>
 </template>
 
-<style scoped>
-/* Dodane style, aby inputy były czarne */
-.form-control {
-  background-color: #212529; /* Ciemne tło */
-  color: #fff;               /* Biały tekst */
-  border: 1px solid #4f4f4f; /* Szara ramka */
-}
-
-/* Styl po kliknięciu w input (focus) - żeby nie robił się biały */
-.form-control:focus {
-  background-color: #212529;
-  color: #fff;
-  border-color: #fff;
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
-}
-
-/* Kolor etykiet wewnątrz inputów (placeholderów) */
-::placeholder {
-  color: #adb5bd;
-}
-</style>

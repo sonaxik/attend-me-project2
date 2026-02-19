@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Backend } from '@/main'
 import type { CourseSessionListItem, CourseSessionAttendanceRecord } from '@/backend/AttendMeBackendClientBase'
 import { Modal } from 'bootstrap'
+import { formatDateTime } from '@/helpers/dateUtils'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,13 +18,6 @@ const isLoadingDevices = ref(false)
 const studentDevices = ref<Record<number, string | null>>({})
 
 const sessionId = Number(route.params.id)
-
-function formatDate(date: Date | undefined) {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('pl-PL', {
-    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-  })
-}
 
 async function fetchData() {
   isLoading.value = true
@@ -162,7 +156,7 @@ onMounted(() => {
                         <span class="fs-4 me-3">📅</span>
                         <div>
                             <small class="text-white-50 d-block">Termin</small>
-                            <span class="fw-bold">{{ formatDate(session.dateStart) }}</span>
+                            <span class="fw-bold">{{ formatDateTime(session.dateStart) }}</span>
                         </div>
                     </div>
                 </div>

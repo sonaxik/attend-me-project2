@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Backend } from '@/main';
+import { formatDateOnly, formatTimeOnly, isSessionActive } from '@/helpers/dateUtils';
 import type { CourseSessionListItem, AttendanceLog } from '@/backend/AttendMeBackendClientBase';
 
 const route = useRoute();
@@ -56,26 +57,6 @@ const stats = computed(() => {
 function isPresent(sessionId: number | undefined): boolean {
   if (!sessionId) return false;
   return attendanceLogs.value.some(log => log.courseSessionId === sessionId);
-}
-
-function isActive(start?: Date, end?: Date): boolean {
-  if (!start || !end) return false;
-  const now = new Date();
-  return new Date(start) <= now && new Date(end) >= now;
-}
-
-function formatSessionDate(date?: Date) {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('pl-PL', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
-  });
-}
-
-function formatSessionTime(date?: Date) {
-  if (!date) return '-';
-  return new Date(date).toLocaleTimeString('pl-PL', {
-    hour: '2-digit', minute: '2-digit'
-  });
 }
 
 function handleRegisterPresence() {
@@ -142,7 +123,7 @@ onMounted(() => {
                 <h5 class="text-white-50 mb-3">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
                 
                 <p class="mb-1 text-white-50">
-                    📅 Termin: {{ formatSessionDate(courseInfo.dateStart) }}, {{ formatSessionTime(courseInfo.dateStart) }} - {{ formatSessionTime(courseInfo.dateEnd) }}
+                    📅 Termin: {{ formatDateOnly(courseInfo.dateStart) }}, {{ formatTimeOnly(courseInfo.dateStart) }} - {{ formatTimeOnly(courseInfo.dateEnd) }}
                 </p>
                 <p class="mb-0 text-white-50">📍 Sala: {{ courseInfo.location || 'Brak danych o sali' }}</p>
             </div>
@@ -189,22 +170,22 @@ onMounted(() => {
                 <div class="list-group list-group-flush">
                     <div v-for="session in sessions" :key="session.courseSessionId"
                          class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary p-3"
-                         :class="{ 'border-active': isActive(session.dateStart, session.dateEnd) }"
+                         :class="{ 'border-active': isSessionActive(session.dateStart, session.dateEnd) }"
                     >
                         <div class="d-flex flex-column text-start">
                             <span class="fw-bold fs-5">{{ session.courseName }}</span>
                             
                             <span class="text-white-50 small mb-1">
-                                📅 {{ formatSessionDate(session.dateStart) }} | 🕒 {{ formatSessionTime(session.dateStart) }} - {{ formatSessionTime(session.dateEnd) }}
+                                📅 {{ formatDateOnly(session.dateStart) }} | 🕒 {{ formatTimeOnly(session.dateStart) }} - {{ formatTimeOnly(session.dateEnd) }}
                             </span>
                             
-                            <span v-if="isActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark w-auto align-self-start mt-1">
+                            <span v-if="isSessionActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark w-auto align-self-start mt-1">
                                 🔥 TRWAJĄ TERAZ
                             </span>
                         </div>
 
                         <div class="text-end">
-                            <div v-if="isActive(session.dateStart, session.dateEnd)">
+                            <div v-if="isSessionActive(session.dateStart, session.dateEnd)">
                                  <button @click="handleRegisterPresence" class="btn fw-bold text-white pulse-btn" style="background-color: #59C173;">
                                     📱 Rejestruj Obecność
                                  </button>
