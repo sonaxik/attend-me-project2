@@ -25,15 +25,11 @@ async function fetchTicket() {
 }
 
 onMounted(() => {
-  // Pobieramy pierwszy kod od razu
   fetchTicket();
-
-  // Odświeżamy kod co 2 sekundy (2000 ms) zgodnie z wytycznymi
   timer = window.setInterval(fetchTicket, 2000);
 });
 
 onUnmounted(() => {
-  // Zatrzymujemy pobieranie, gdy student opuści ten ekran
   if (timer) clearInterval(timer);
 });
 
@@ -92,7 +88,6 @@ function goBack() {
 
 <style scoped>
 .qr-box {
-  /* Dodajemy lekką zieloną obwódkę wokół białego tła dla estetyki */
   border: 4px solid #59C173;
 }
 </style>

@@ -18,7 +18,6 @@ const isDeviceRegistered = ref(false);
 const courseInfo = computed(() => {
   if (sessions.value.length === 0) return null;
 
-  // Szukamy najbliższych zajęć, żeby w sygnaturze wyświetlać aktualny termin
   const now = new Date();
   const nextSession = sessions.value.find(s => s.dateEnd && new Date(s.dateEnd) >= now) || sessions.value[0];
 
