@@ -17,7 +17,7 @@ const isDeviceRegistered = ref(false);
 
 const courseInfo = computed(() => {
   if (sessions.value.length === 0) return null;
-  
+
   // Szukamy najbliższych zajęć, żeby w sygnaturze wyświetlać aktualny termin
   const now = new Date();
   const nextSession = sessions.value.find(s => s.dateEnd && new Date(s.dateEnd) >= now) || sessions.value[0];
@@ -97,7 +97,7 @@ onMounted(() => {
   <div class="container mt-4 mb-5 text-white">
     <div class="d-flex align-items-center mb-4">
       <button
-        class="btn btn-back rounded-circle d-flex align-items-center justify-content-center me-3"
+        class="btn subpage-back-btn rounded-circle d-flex align-items-center justify-content-center me-3"
         style="width: 45px; height: 45px;"
         @click="goBack"
         title="Wróć"
@@ -121,7 +121,7 @@ onMounted(() => {
             <div class="card-body">
                 <h2 class="card-title fw-bold" style="color: #59C173;">{{ courseInfo.name }}</h2>
                 <h5 class="text-white-50 mb-3">Grupa: {{ courseInfo.group || 'Standardowa' }}</h5>
-                
+
                 <p class="mb-1 text-white-50">
                     📅 Termin: {{ formatDateOnly(courseInfo.dateStart) }}, {{ formatTimeOnly(courseInfo.dateStart) }} - {{ formatTimeOnly(courseInfo.dateEnd) }}
                 </p>
@@ -160,7 +160,7 @@ onMounted(() => {
             <div class="card-header d-flex justify-content-between align-items-center border-secondary bg-dark">
                 <span class="fs-5 fw-bold" style="color: #59C173;">Harmonogram i Obecności</span>
 
-                <button @click="fetchData" class="btn btn-sm btn-light fw-bold" style="color: #59C173;">
+                <button @click="fetchData" class="btn btn-sm btn-light subpage-refresh-btn" style="color: #59C173;">
                     <span v-if="isLoading" class="spinner-border spinner-border-sm me-1"></span>
                     Odśwież
                 </button>
@@ -174,11 +174,11 @@ onMounted(() => {
                     >
                         <div class="d-flex flex-column text-start">
                             <span class="fw-bold fs-5">{{ session.courseName }}</span>
-                            
+
                             <span class="text-white-50 small mb-1">
                                 📅 {{ formatDateOnly(session.dateStart) }} | 🕒 {{ formatTimeOnly(session.dateStart) }} - {{ formatTimeOnly(session.dateEnd) }}
                             </span>
-                            
+
                             <span v-if="isSessionActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark w-auto align-self-start mt-1">
                                 🔥 TRWAJĄ TERAZ
                             </span>
@@ -213,19 +213,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.btn-back {
-    color: #6c757d;
-    border: 1px solid #6c757d;
-    background-color: transparent; 
-    transition: all 0.3s;
-}
-
-.btn-back:hover {
-    color: #fff;
-    border-color: #fff;
-    background-color: transparent !important; 
-}
-
 @keyframes pulse {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(89, 193, 115, 0.7); }
     70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(89, 193, 115, 0); }

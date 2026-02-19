@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Backend } from '@/main'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import type { AttendanceLog, CourseSessionListItem, CourseSessionListItemPagedList } from '@/backend/AttendMeBackendClientBase'
+import type {
+  AttendanceLog,
+  CourseSessionListItem,
+  CourseSessionListItemPagedList,
+} from '@/backend/AttendMeBackendClientBase'
 import { formatDateTime, isSessionActive, isSessionPast } from '@/helpers/dateUtils'
-import { filterStudentSessions, type StudentFilterType } from '@/helpers/sessionFilterUtils'
+import {
+  buildStudentSessionsQuery,
+  filterStudentSessions,
+  type StudentFilterType,
+} from '@/helpers/sessionFilterUtils'
 
 const sessions = ref<CourseSessionListItem[]>([])
 const presentSessionIds = ref<number[]>([])
@@ -16,6 +24,7 @@ const router = useRouter()
 const filterStatus = ref<StudentFilterType>('all')
 const searchTerm = ref('')
 const isDeviceRegistered = ref(false)
+let filterDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 function handleLogout() {
   authStore.logout()
@@ -42,14 +51,19 @@ function goToScanner() {
 async function fetchSessions() {
   isLoading.value = true
   try {
-    const response: CourseSessionListItemPagedList = await Backend.courseStudentSessionsGet({
-      pageNumber: 1,
-      pageSize: 999999,
-    })
+    const response: CourseSessionListItemPagedList = await Backend.courseStudentSessionsGet(
+      buildStudentSessionsQuery(filterStatus.value, searchTerm.value),
+    )
     const fetchedSessions: CourseSessionListItem[] = response.items || []
     sessions.value = fetchedSessions
 
-    const groupIds = [...new Set(fetchedSessions.map((session) => session.courseGroupId).filter((id): id is number => typeof id === 'number'))]
+    const groupIds = [
+      ...new Set(
+        fetchedSessions
+          .map((session) => session.courseGroupId)
+          .filter((id): id is number => typeof id === 'number'),
+      ),
+    ]
     const attendancePromises = groupIds.map((id) => Backend.courseStudentAttendanceGet(id))
     const attendanceResults = await Promise.all(attendancePromises)
 
@@ -72,6 +86,21 @@ async function fetchSessions() {
 const filteredSessions = computed(() =>
   filterStudentSessions(sessions.value, filterStatus.value, searchTerm.value),
 )
+
+watch([filterStatus, searchTerm], () => {
+  if (filterDebounceTimer) {
+    clearTimeout(filterDebounceTimer)
+  }
+  filterDebounceTimer = setTimeout(() => {
+    fetchSessions()
+  }, 300)
+})
+
+onBeforeUnmount(() => {
+  if (filterDebounceTimer) {
+    clearTimeout(filterDebounceTimer)
+  }
+})
 
 onMounted(() => {
   isDeviceRegistered.value = !!localStorage.getItem('attend-me:deviceAuthData')
@@ -136,7 +165,10 @@ onMounted(() => {
           <div class="col-12 col-md-5">
             <div class="input-group">
               <span class="input-group-text bg-dark text-white border-secondary">📅 Pokaż:</span>
-              <select v-model="filterStatus" class="form-select form-select-dark bg-dark text-white border-secondary fw-bold">
+              <select
+                v-model="filterStatus"
+                class="form-select form-select-dark bg-dark text-white border-secondary fw-bold"
+              >
                 <option value="all">Wszystkie zajęcia</option>
                 <option value="today">Dzisiaj</option>
                 <option value="tomorrow">Jutro</option>
@@ -194,11 +226,16 @@ onMounted(() => {
                   >Dzisiaj</span
                 >
 
-                <span v-if="isSessionActive(session.dateStart, session.dateEnd)" class="badge bg-warning text-dark">
+                <span
+                  v-if="isSessionActive(session.dateStart, session.dateEnd)"
+                  class="badge bg-warning text-dark"
+                >
                   🔥 Trwają
                 </span>
                 <span v-else-if="isSessionPast(session.dateEnd)">
-                  <span v-if="presentSessionIds.includes(session.courseSessionId!)" class="badge bg-success">✅ Obecny</span>
+                  <span v-if="presentSessionIds.includes(session.courseSessionId!)" class="badge bg-success"
+                    >✅ Obecny</span
+                  >
                   <span v-else class="badge bg-danger">❌ Nieobecny</span>
                 </span>
                 <span v-else class="badge bg-secondary text-white-50"> Nadchodzące </span>

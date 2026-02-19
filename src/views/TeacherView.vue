@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Backend } from '@/main'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import type { CourseSessionListItem } from '@/backend/AttendMeBackendClientBase'
 import { formatDateTime } from '@/helpers/dateUtils'
-import { filterTeacherSessions, type TeacherFilterType } from '@/helpers/sessionFilterUtils'
+import {
+  buildTeacherSessionsQuery,
+  filterTeacherSessions,
+  type TeacherFilterType,
+} from '@/helpers/sessionFilterUtils'
 
 const sessions = ref<CourseSessionListItem[]>([])
 const isLoading = ref(true)
 const filterStatus = ref<TeacherFilterType>('all_date')
 const searchTerm = ref('')
+let filterDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -23,7 +28,9 @@ function handleLogout() {
 async function fetchSessions() {
   isLoading.value = true
   try {
-    const response = await Backend.courseTeacherSessionsGet({ pageNumber: 1, pageSize: 999999 })
+    const response = await Backend.courseTeacherSessionsGet(
+      buildTeacherSessionsQuery(filterStatus.value, searchTerm.value),
+    )
     sessions.value = response.items || []
   } catch (error) {
     console.error(error)
@@ -44,6 +51,21 @@ function goToSessionCheck(sessionId: number | undefined) {
 const filteredSessions = computed(() =>
   filterTeacherSessions(sessions.value, filterStatus.value, searchTerm.value),
 )
+
+watch([filterStatus, searchTerm], () => {
+  if (filterDebounceTimer) {
+    clearTimeout(filterDebounceTimer)
+  }
+  filterDebounceTimer = setTimeout(() => {
+    fetchSessions()
+  }, 300)
+})
+
+onBeforeUnmount(() => {
+  if (filterDebounceTimer) {
+    clearTimeout(filterDebounceTimer)
+  }
+})
 
 onMounted(() => {
   fetchSessions()

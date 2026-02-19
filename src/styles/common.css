@@ -14,3 +14,37 @@
 .dark-placeholder::placeholder {
   color: #adb5bd;
 }
+
+.subpage-back-btn {
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(2px);
+  transition: all 0.25s ease;
+}
+
+.subpage-back-btn:hover {
+  color: #fff;
+  border-color: #fff;
+  background-color: transparent !important;
+  transform: translateY(-1px);
+}
+
+.subpage-back-btn:active {
+  transform: scale(0.96);
+}
+
+.subpage-refresh-btn {
+  border: none;
+  font-weight: 700;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.subpage-refresh-btn:hover {
+  filter: brightness(1.03);
+}
+
+.subpage-refresh-btn:active {
+  transform: scale(0.96);
+  box-shadow: inset 0 0 0.35rem rgba(0, 0, 0, 0.25);
+}
