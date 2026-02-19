@@ -34,6 +34,7 @@ function goToCourseDetails(groupId: number | undefined) {
 }
 
 function goToScanner() {
+
   if(!isDeviceRegistered.value)
 {
   alert("Twoje urządzenie nie jest zarejstrowane");
