@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Backend } from '@/main';
-import QrcodeVue from 'qrcode.vue'; // Twoja biblioteka!
+import QrcodeVue from 'qrcode.vue'; // Twoja biblioteka! Kogo?
 
 const router = useRouter();
 const qrCodeValue = ref("");
@@ -13,7 +13,7 @@ let timer: number | null = null;
 async function fetchTicket() {
   try {
     const result = await Backend.userAttendanceTicketGet();
-    
+
     if (result.token) {
         qrCodeValue.value = result.token;
         isLoading.value = false;
@@ -27,7 +27,7 @@ async function fetchTicket() {
 onMounted(() => {
   // Pobieramy pierwszy kod od razu
   fetchTicket();
-  
+
   // Odświeżamy kod co 2 sekundy (2000 ms) zgodnie z wytycznymi
   timer = window.setInterval(fetchTicket, 2000);
 });
@@ -44,9 +44,9 @@ function goBack() {
 
 <template>
   <div class="container mt-4 mb-5 text-white d-flex flex-column align-items-center">
-    
+
     <div class="w-100 d-flex align-items-center mb-4">
-      <button 
+      <button
         class="btn rounded-circle d-flex align-items-center justify-content-center me-3"
         style="width: 45px; height: 45px; border: 1px solid #6c757d; color: #6c757d; transition: 0.3s;"
         onmouseover="this.style.color='#fff'; this.style.borderColor='#59C173';"
@@ -60,7 +60,7 @@ function goBack() {
 
     <div class="card shadow bg-dark text-white border-secondary text-center p-4 w-100" style="max-width: 450px;">
       <h4 class="fw-bold mb-3" style="color: #59C173;">Twój Kod Obecności</h4>
-      
+
       <p class="text-white-50 mb-4 small">
         Pokaż ten ekran wykładowcy. Zbliż telefon do kamery urządzenia skanującego.
       </p>
@@ -73,12 +73,12 @@ function goBack() {
         <div v-if="isLoading" class="d-flex justify-content-center align-items-center" style="width: 250px; height: 250px;">
           <div class="spinner-border" style="color: #59C173;" role="status"></div>
         </div>
-        
-        <qrcode-vue 
-            v-else 
-            :value="qrCodeValue" 
-            :size="250" 
-            level="H" 
+
+        <qrcode-vue
+            v-else
+            :value="qrCodeValue"
+            :size="250"
+            level="H"
             background="#ffffff"
             foreground="#000000"
         />
