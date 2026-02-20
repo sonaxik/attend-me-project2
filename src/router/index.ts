@@ -24,23 +24,25 @@ const router = createRouter({
       path: '/TeacherView',
       name: 'teacher',
       component: TeacherView,
+      meta: { requiresAuth: true, role: 'teacher' },
     },
     {
       path: '/StudentView',
       name: 'student',
       component: StudentView,
+      meta: { requiresAuth: true, role: 'student' },
     },
     {
       path: '/student/course/:id',
       name: 'student-course-details',
       component: StudentCourseDetailsView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, role: 'student' },
     },
     {
       path: '/teacher/session/:id',
       name: 'teacher-session-details',
       component: TeacherSessionView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, role: 'teacher' },
     },
     {
       path: '/student/device-register',
@@ -51,7 +53,7 @@ const router = createRouter({
       path: '/student/qr',
       name: 'student-qr',
       component: StudentQRView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, role: 'student' },
     },
   ],
 })
@@ -64,16 +66,30 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   const isAuthenticated = authStore.isAuthenticated
+  const isTeacher = authStore.isTeacher
+  
   const publicPages = ['login', 'student-device-register']
   const authRequired = !publicPages.includes(to.name as string)
 
   if (!isAuthenticated && authRequired) {
-    next({ name: 'login' })
-  } else if (!authRequired && isAuthenticated && to.name === 'login') {
-    next('/')
-  } else {
-    next()
+    return next({ name: 'login' })
+  } 
+
+  if (!authRequired && isAuthenticated && to.name === 'login') {
+    return next(isTeacher ? { name: 'teacher' } : { name: 'student' })
+  } 
+
+  if (isAuthenticated && authRequired && to.meta.role) {
+    if (to.meta.role === 'teacher' && !isTeacher) {
+      return next({ name: 'student' })
+    }
+    
+    if (to.meta.role === 'student' && isTeacher) {
+      return next({ name: 'teacher' })
+    }
   }
+
+  next()
 })
 
 export default router
