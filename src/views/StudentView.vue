@@ -135,8 +135,7 @@ onMounted(() => {
           <button
             class="btn btn-lg fw-bold text-white border-0"
             style="background-color: #59c173"
-            @click="goToScanner"
-          >
+            @click="goToScanner">
             📷 Rejestruj obecność
           </button>
         </div>
