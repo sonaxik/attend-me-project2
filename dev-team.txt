@@ -1,0 +1,23 @@
+Projekt wykonali:
+- Dawid Szarlej 15160 dawid.szarlej@microsoft.wsei.edu.pl
+- Szymon Katarzyński 15468 szymon.katarzynski1@microsoft.wsei.edu.pl
+
+Dawid Szarlej:
+- pulpit wykładowcy
+- filtrowanie
+- szczegóły zajęć z listą obecności
+- zarządzanie urządzeniami 
+- rejestracja urządzenia u studenta
+
+Szymon Katarzyński:
+- Logowanie
+- pulpit studenta
+- szczegóły zajęć studenta
+- generowanie kodu qr
+- router
+
+Użycie AI Gemini 3 Pro w projekcie:
+- wygląd aplikacji został w całości wygenerowany
+- poprawa małych błędów kompilatora
+- pomoc w przeliczeniu zakresu dat w filtrowaniu
+- sprawdzenie finalnej wersji aplikacji pod względem spełnienia kryteriów projektu zaliczeniowego
